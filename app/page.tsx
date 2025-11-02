@@ -1,3 +1,4 @@
+"use client";
 import {
   Card,
   CardContent,
@@ -9,7 +10,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { resolve } from "path";
+import { useEffect, useState } from "react";
 
 interface Recipe {
   title: string;
@@ -20,19 +21,31 @@ interface Recipe {
   id: string;
 }
 
-async function getRecipes(): Promise<Recipe[]> {
-  const result = await fetch("http://localhost:4000/recipes");
+export default function Home() {
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
 
-  await new Promise((resolve) => setTimeout(resolve, 3000));
-
-  return result.json();
-}
-
-export default async function Home() {
-  const recipes = await getRecipes();
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch("http://localhost:4000/recipes");
+        if (!res.ok) throw new Error("Failed to Fetch");
+        const data = await res.json();
+        setRecipes(data);
+      } catch (err) {
+        console.warn("Fetch recipes error:", err);
+      }
+    }
+    load();
+  }, []);
 
   return (
     <main>
+      <div className="py-10">
+        <Button>Add Recipe</Button>
+      </div>
+
+      <div className=""></div>
+
       <div className="grid grid-cols-3 gap-8">
         {recipes.map((recipe) => (
           <Card key={recipe.id} className="flex flex-col justify-between">
